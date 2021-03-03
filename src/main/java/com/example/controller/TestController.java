@@ -2,9 +2,14 @@ package com.example.controller;
 
 import com.example.bloomFilter.RedisBloomFilter;
 import com.example.service.RedisService;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,5 +41,29 @@ public class TestController {
         System.out.println(redisService.mayExist("topic_read:20200812", "76930246"));
         System.out.println(redisService.mayExist("topic_read:20200812", "76930248"));
         System.out.println(redisService.mayExist("topic_read:20200812", "769302428"));
+
+
+        List<String> d = Lists.newArrayList();
+        List<String> dd = Lists.newArrayList();
+        d.add("11");
+        d.add("11");
+        d.add("22");
+        d.add("33");
+        d.add("33");
+        d.add("44");
+        d.add("44");
+        List<String> ff = d.stream().filter(s -> !redisService.mayExist("topic_read:20200812",s)).peek(s->{
+            dd.add(s);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            redisService.insertBloomFilter("topic_read:20200812", s, RedisBloomFilter.getTwelveTime());
+        }).collect(toList());
+        System.out.println("ff = " + ff);
+        System.out.println("dd = " + dd);
+
+
     }
 }
